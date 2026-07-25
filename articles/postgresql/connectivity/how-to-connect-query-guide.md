@@ -5,7 +5,7 @@ description: Links to quickstarts showing how to connect to your Azure Database 
 author: gbowerman
 ms.author: guybo
 ms.reviewer: maghan
-ms.date: 07/08/2026
+ms.date: 07/25/2026
 ms.service: azure-database-postgresql
 ms.subservice: connectivity
 ms.topic: how-to
