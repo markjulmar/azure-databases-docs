@@ -5,7 +5,7 @@ description: This quickstart provides a PHP code sample you can use to connect a
 author: gkasar
 ms.author: gkasar
 ms.reviewer: maghan
-ms.date: 07/08/2026
+ms.date: 08/07/2026
 ms.service: azure-database-postgresql
 ms.subservice: connectivity
 ms.topic: quickstart

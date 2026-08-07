@@ -5,7 +5,7 @@ description: In this quickstart, you learn how to use Java and JDBC with an Azur
 author: gkasar
 ms.author: gkasar
 ms.reviewer: maghan
-ms.date: 07/09/2026
+ms.date: 08/07/2026
 ms.service: azure-database-postgresql
 ms.subservice: connectivity
 ms.topic: quickstart
