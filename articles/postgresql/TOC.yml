@@ -439,6 +439,8 @@
       href: connectivity/concepts-pgbouncer.md
     - name: Connection pooling best practices
       href: connectivity/concepts-connection-pooling-best-practices.md
+    - name: "Quickstart: Connect Node.js to Azure Database for PostgreSQL"
+      href: connectivity/connect-nodejs.md
 - name: Networking
   items:
     - name: Networking
