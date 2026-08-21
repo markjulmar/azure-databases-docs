@@ -192,6 +192,8 @@
   items:
     - name: Overview
       href: extensions/concepts-extensions.md
+    - name: PostgreSQL extensions for common workloads
+      href: extensions/concepts-extensions-workload-guide.md
     - name: Special considerations
       href: extensions/concepts-extensions-considerations.md
     - name: List by name
