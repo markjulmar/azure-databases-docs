@@ -964,3 +964,5 @@
       href: migrate/oracle-migration/partners-migration-postgresql.md
     - name: Database Migration Guide
       href: /data-migration/
+- name: Frequently asked questions about Azure Database for PostgreSQL flexible server
+  href: flexible-server-faq.md
