@@ -274,6 +274,8 @@
           href: network/how-to-network-cluster-public-access-list-firewall.md
         - name: Update firewall rules
           href: network/how-to-network-cluster-public-access-update-firewall.md
+        - name: Azure HorizonDB (Preview) Private Link networking concepts
+          href: network/concepts-network-private-link.md
 - name: High availability and resilience
   items:
     - name: High availability
