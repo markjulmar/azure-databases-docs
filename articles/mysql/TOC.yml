@@ -11,6 +11,8 @@
       href: flexible-server/concept-reserved-pricing.md
     - name: Version support policy
       href: concepts-version-policy.md
+    - name: Assess readiness for a MySQL 8.0 to 8.4 upgrade
+      href: flexible-server/how-to-assess-major-version-upgrade-readiness.md
 - name: Azure Database for MySQL
   items:
     - name: Overview
