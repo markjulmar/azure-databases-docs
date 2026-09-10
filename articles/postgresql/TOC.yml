@@ -304,6 +304,8 @@
           href: configure-maintain/how-to-restart-server.md
     - name: Azure Advisor recommendations
       href: configure-maintain/concepts-azure-advisor-recommendations.md
+    - name: Troubleshoot storage growth and full-disk conditions in Azure Database for PostgreSQL
+      href: troubleshoot/troubleshoot-storage-growth-full-disk.md
 - name: Compute and Storage
   items:
     - name: Compute
