@@ -1,6 +1,6 @@
 ---
-title: Choose the Right Hosting Option in Azure Database for PostgreSQL Flexible Server
-description: Provides guidelines for choosing the right Azure Database for PostgreSQL flexible server hosting option.
+title: Choose the right hosting option in Azure Database for PostgreSQL
+description: Compare PostgreSQL hosting options on Azure, including VMs, Flexible Server, Elastic Clusters, and Azure HorizonDB (Preview).
 #customer intent: As a user, I want to compare Azure Database for PostgreSQL hosting options so that I can choose the deployment model that fits my workload.
 author: varun-dhawan
 ms.author: varundhawan
@@ -14,85 +14,87 @@ ms.custom:
   - mvc
 ---
 
-# Choose the right hosting option in Azure Database for PostgreSQL flexible server
+# Choose the right hosting option in Azure Database for PostgreSQL
 
-With Azure, you can run your PostgreSQL workloads in a hosted virtual machine infrastructure as a service (IaaS) or as a hosted platform as a service (PaaS). PaaS offers multiple deployment options, each with multiple service tiers. When you choose between IaaS and PaaS, decide if you want to manage your database, apply patches, and make backups, or if you want to delegate these operations to Azure.
+Azure offers self-managed PostgreSQL on Azure virtual machines (VMs) and managed PostgreSQL services. Start by deciding whether you need operating system and database-engine control or prefer Azure to manage patching, backups, and high availability.
 
-When making your decision, consider the following option in PaaS or alternatively running on Azure VMs (IaaS):
-- [Azure Database for PostgreSQL](../flexible-server/overview.md)
+If you choose a managed service, compare Azure Database for PostgreSQL flexible server, Elastic Clusters, and Azure HorizonDB (Preview). The best fit depends on your workload's scale, distribution model, tenant or service boundaries, read patterns, operational constraints, migration path, and cost model.
 
-**PostgreSQL on Azure VMs** option falls into the industry category of IaaS. By using this service, you can run a PostgreSQL server inside a fully managed virtual machine on the Azure cloud platform. You can install all recent versions and editions of PostgreSQL on an IaaS virtual machine. In the most significant difference from Azure Database for PostgreSQL flexible servers, PostgreSQL on Azure VMs offers control over the database engine. However, this control comes at the cost of responsibility to manage the VMs and many database administration (DBA) tasks. These tasks include maintaining and patching database servers, database recovery, and high-availability design.
+## Choose a managed PostgreSQL offering
 
-The main differences between these options are listed in the following table:
+Use the following comparison to identify the architecture that best matches your workload. Validate the choice against the linked limitations and pricing information before deployment.
 
-| **Attribute** | **Postgres on Azure VMs** | **Azure Database for PostgreSQL as PaaS** |
+| **Decision factor** | **Flexible Server** | **Elastic Clusters** | **Azure HorizonDB (Preview)** |
+| --- | --- | --- | --- |
+| **Workload fit** | Managed PostgreSQL for workloads that fit a single-server architecture. Match compute and storage to the workload's CPU, memory, IOPS, throughput, and latency requirements. | [Citus-based horizontal sharding](../elastic-clusters/concepts-elastic-clusters.md) for workloads that can distribute data across nodes. | A [fully managed service built on PostgreSQL](../../horizondb/overview.md) for OLTP, AI and vector applications, large read scale-out, and hybrid applications. |
+| **Scale and distribution** | Scale compute and storage within a server. Review [operational performance planning](../compute-storage/concepts-optimal-performance.md) and current service limits before assuming that vertical scaling meets future demand. | Add nodes and choose [row-based or schema-based sharding](../elastic-clusters/concepts-elastic-clusters-sharding-models.md). You must distribute tables or schemas to use distributed query processing. | [Scale compute separately from storage and add readable replicas](../../horizondb/configure-maintain/concepts-compute-replicas.md). A cluster supports one writable primary and up to 15 readable replicas. |
+| **Tenant and service boundaries** | Use when the application doesn't need managed horizontal sharding across multiple PostgreSQL nodes. | [Row-based sharding](../elastic-clusters/concepts-elastic-clusters-sharding-models.md#row-based-sharding) fits shared-schema multitenancy but requires a distribution column and query changes. [Schema-based sharding](../elastic-clusters/concepts-elastic-clusters-sharding-models.md#schema-based-sharding) fits multitenant and microservice designs that use separate schemas. | Use PostgreSQL databases and schemas for application boundaries. For managed Citus sharding, evaluate [Elastic Clusters](../elastic-clusters/concepts-elastic-clusters.md) instead. |
+| **Read, write, and analytical patterns** | Use workload measurements to balance compute and storage for transactional, reporting, and batch activity. | Distributed queries can route to one node or run across shards. [Row-based sharding supports parallel cross-tenant queries](../elastic-clusters/concepts-elastic-clusters-sharding-models.md#sharding-tradeoffs); schema-based sharding doesn't. | Writes use one primary. [Readable replicas scale read throughput and isolate reporting or analytics from transactional writes](../../horizondb/configure-maintain/concepts-compute-replicas.md#scale-out-reads) when reads can tolerate milliseconds of visibility delay. |
+| **Material constraints** | Service limits and available configurations vary by compute and storage choice. Check current limits and supported PostgreSQL versions for your planned configuration. | [Elastic Clusters support PostgreSQL 17 and currently have scale-in, major-version-upgrade, extension, performance-feature, and replica limitations](../elastic-clusters/concepts-elastic-clusters-limitations.md). | The service is in Preview. [Scaling compute restarts replicas, temporarily interrupts availability, and drops connections](../../horizondb/configure-maintain/concepts-compute-replicas.md#how-scale-up-works). Review the [current Preview limitations and regional availability](../../horizondb/overview.md) before deployment. |
+| **Documented migration path** | Use the documented [`pg_dump` and restore workflow](../migrate/how-to-migrate-using-dump-and-restore.md). Choose utilities that are the same major version as, or newer than, the source and target servers. | [Migrate to or from Elastic Clusters](../elastic-clusters/concepts-elastic-clusters-limitations.md#migrations) with `pg_dump`, `pg_restore`, or `pgcopydb`, and verify extension compatibility first. | The documented [dump-and-restore workflow migrates data to Azure HorizonDB](../../horizondb/migrate/how-to-migrate-dump-restore.md). It requires compatible PostgreSQL utilities and additional handling for roles and permissions. |
+| **Pricing model** | Pricing reflects provisioned compute, storage, backup storage beyond the included amount, and applicable network usage. See [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql/flexible-server/). | Cluster cost reflects the Flexible Server resources provisioned across its nodes. Use [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql/flexible-server/) to estimate those resources. | [Azure HorizonDB pricing](https://azure.microsoft.com/pricing/details/horizondb/) separately accounts for provisioned compute for the primary and replicas, allocated data and log storage, and applicable backup storage. |
+
+### Choose Flexible Server when
+
+Choose Flexible Server when you want managed PostgreSQL and your workload fits a single-server architecture that you can scale by selecting appropriate compute and storage. Start here when the application doesn't require managed horizontal sharding or Azure HorizonDB (Preview) capabilities.
+
+### Choose Elastic Clusters when
+
+Choose [Elastic Clusters](../elastic-clusters/concepts-elastic-clusters.md) when data and queries have a clear distribution key or schema boundary, and horizontal sharding justifies the added data-model and query-design complexity. The documented [sharding models](../elastic-clusters/concepts-elastic-clusters-sharding-models.md) fit distributed multitenant, microservice, or cross-tenant workloads; Elastic Clusters aren't an automatic upgrade from Flexible Server.
+
+### Choose Azure HorizonDB (Preview) when
+
+Choose [Azure HorizonDB (Preview)](../../horizondb/overview.md) when you need independently scalable compute and storage or its documented AI, vector, and hybrid application capabilities. Its [compute replicas](../../horizondb/configure-maintain/concepts-compute-replicas.md) provide read scale-out and isolate reporting or analytics reads from transactional writes. Confirm that its Preview status, regional availability, single-primary write model, and current limitations fit your requirements.
+
+## Compare self-managed and managed hosting
+
+PostgreSQL on Azure VMs is an infrastructure as a service (IaaS) option. It gives you control over the operating system and database engine, but you manage the VMs and database administration tasks such as patching, recovery, backups, and high-availability design. The managed offerings are platform as a service (PaaS) options that delegate more of those responsibilities to Azure.
+
+| **Attribute** | **PostgreSQL on Azure VMs** | **Azure managed PostgreSQL offerings** |
 | --- | --- | --- |
-| **Availability SLA** | - [Virtual Machine SLA](https://azure.microsoft.com/support/legal/sla/virtual-machines) | - [Azure Database for PostgreSQL](https://azure.microsoft.com/support/legal/sla/postgresql) |
-| **OS and PostgreSQL patching** | - Customer managed | Automatic with optional customer managed window |
-| **High availability** | - Customers architect, implement, test, and maintain high availability. Capabilities might include clustering, replication, and more. | Built-in |
-| **Zone redundancy** | - Azure VMs can be set up to run in different availability zones. For an on-premises solution, customers must create, manage, and maintain their own secondary data center. | Yes |
-| **Hybrid scenario** | - Customer managed | Supported |
-| **Backup and restore** | - Customer Managed | Built-in with user configuration on zone-redundant storage |
-| **Monitoring database operations** | - Customer Managed | All offer customers the ability to set alerts on the database operation and act upon reaching thresholds |
-| **Advanced threat protection** | - Customers must build this protection for themselves. | Not available during Preview |
-| **Disaster recovery** | - Customer Managed | Supported |
-| **Intelligent performance** | - Customer Managed | Supported |
-
-## Total cost of ownership (TCO)
-
-TCO is often the primary consideration that determines the best solution for hosting your databases. This consideration is true whether you're a startup with little cash or a team in an established company that operates under tight budget constraints. This section describes billing and licensing basics in Azure as they apply to Azure Database for PostgreSQL and PostgreSQL on Azure VMs.
-
-## Billing
-
-Azure Database for PostgreSQL is available in several tiers with different prices for resources. All resources are billed hourly at a fixed rate. For the latest information on the currently supported service tiers, compute sizes, and storage amounts, see the [pricing page](https://azure.microsoft.com/pricing/details/postgresql/server/). You can dynamically adjust service tiers and compute sizes to match your application's varied throughput needs. You pay for outgoing Internet traffic at regular [data transfer rates](https://azure.microsoft.com/pricing/details/data-transfers/).
-
-With Azure Database for PostgreSQL, Microsoft automatically configures, patches, and upgrades the database software. These automated actions reduce your administration costs. Also, Azure Database for PostgreSQL has automated backup capabilities. These capabilities help you achieve significant cost savings, especially when you have a large number of databases. In contrast, with PostgreSQL on Azure VMs you can choose and run any PostgreSQL version. However, you need to pay for the provisioned VM, storage cost associated with the data, backup, monitoring data and log storage and the costs for the specific PostgreSQL license type used (if any).
-
-Azure Database for PostgreSQL provides built-in high availability at the zonal-level (within an AZ) for any kind of node-level interruption while still maintaining the [SLA guarantee](https://azure.microsoft.com/support/legal/sla/postgresql/v1_2/) for the service. Azure Database for PostgreSQL provides [uptime SLAs](https://azure.microsoft.com/support/legal/sla/postgresql/v1_2/) with and without zone-redundant configuration. However, for database high availability within VMs, you use the high availability options like [Streaming Replication](https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION) that are available on a PostgreSQL database. Using a supported high availability option doesn't provide another SLA. But it does let you achieve greater than 99.99% database availability at more cost and administrative overhead.
-
-For more information on pricing, see the following articles:
-- [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql/server/)
-- [Virtual machine pricing](https://azure.microsoft.com/pricing/details/virtual-machines/)
-- [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/)
+| **Availability SLA** | [Virtual Machine SLA](https://azure.microsoft.com/support/legal/sla/virtual-machines) | [Azure Database for PostgreSQL SLA](https://azure.microsoft.com/support/legal/sla/postgresql) |
+| **OS and PostgreSQL patching** | Customer managed | Automatic, with service-specific maintenance controls |
+| **High availability** | You architect, implement, test, and maintain high availability. | Built in, with service-specific configuration and behavior |
+| **Zone redundancy** | You can deploy Azure VMs in different availability zones. | Available according to the selected service and configuration |
+| **Backup and restore** | Customer managed | Built in, with service-specific configuration |
+| **Monitoring database operations** | Customer managed | Built-in monitoring and alerting capabilities vary by service |
+| **Advanced threat protection** | You build and manage threat protection. | [Microsoft Defender for Cloud integration (Preview)](../security/security-defender-for-cloud.md) is available for Flexible Server. |
+| **Disaster recovery** | Customer managed | Capabilities vary by service and configuration |
+| **Performance management** | Customer managed | Built-in capabilities vary by service |
 
 ## Administration
 
-For many businesses, the decision to transition to a cloud service is as much about offloading complexity of administration as it is about cost.
+For many businesses, moving to a cloud service is as much about reducing administration as it is about cost.
 
 With IaaS, Microsoft:
 
 - Administers the underlying infrastructure.
-- Provides automated patching for underlying hardware and OS.
+- Provides automated patching for underlying hardware and the operating system.
 
 With PaaS, Microsoft:
 
 - Administers the underlying infrastructure.
-- Provides automated patching for underlying hardware, OS, and database engine.
+- Provides automated patching for underlying hardware, the operating system, and the database engine.
 - Manages high availability of the database.
-- Automatically performs backups and replicates all data to provide disaster recovery.
-- Encrypts the data at rest and in motion by default.
-- Monitors your server and provides features for query performance insights and performance recommendations.
+- Automatically performs backups.
+- Provides encryption, monitoring, and performance capabilities that vary by service.
 
-With Azure Database for PostgreSQL, you can continue to administer your database. But you no longer need to manage the database engine, the operating system, or the hardware. Examples of items you can continue to administer include:
+With a managed PostgreSQL offering, you continue to administer databases, sign-ins, indexes, queries, auditing, and security. You don't manage the underlying hardware, operating system, or database engine.
 
-- Databases
-- Sign-in
-- Index tuning
-- Query tuning
-- Auditing
-- Security
+With PostgreSQL on Azure VMs, you control the operating system, PostgreSQL server configuration, software installation, patch timing, VM size, disks, and storage configuration. For more information, see [Virtual machine sizes for Azure](/azure/virtual-machines/sizes).
 
-Additionally, configuring high availability to another data center requires minimal to no configuration or administration.
+## Total cost of ownership
 
-- With PostgreSQL on Azure VMs, you have full control over the operating system and the PostgreSQL server instance configuration. With a VM, you decide when to update or upgrade the operating system and database software and what patches to apply. You also decide when to install any other software such as an antivirus application. Some automated features are provided to greatly simplify patching, backup, and high availability. You can control the size of the VM, the number of disks, and their storage configurations. For more information, see [Virtual machine and cloud service sizes for Azure](/azure/virtual-machines/sizes).
+Total cost of ownership includes both Azure charges and the people and processes required to operate the database. A managed service can reduce administration for patching, backups, and high availability. PostgreSQL on Azure VMs gives you more control, but you pay for the provisioned VMs, storage, backup, monitoring, and log storage, and you operate the database software.
 
-## Time to move to Azure Database for PostgreSQL (PaaS)
+## Billing
 
-- Azure Database for PostgreSQL is the right solution for cloud-designed applications when developer productivity and fast time to market for new solutions are critical. With programmatic functionality that's like a DBA, the service is suitable for cloud architects and developers because it lowers the need for managing the underlying operating system and database.
+The managed offerings don't share one pricing model. Flexible Server pricing reflects its provisioned compute, storage, backup storage, and applicable network usage. Elastic Clusters use Flexible Server resources across cluster nodes. Azure HorizonDB (Preview) has separate charges for provisioned primary and replica compute, data and log storage, and applicable backup storage.
 
-- When you want to avoid the time and expense of acquiring new on-premises hardware, PostgreSQL on Azure VMs is the right solution for applications that require granular control and customization of the PostgreSQL engine that the service doesn't support or that require access to the underlying OS.
+Don't use a static price to compare these architectures. Estimate the workload's required topology and resources with the [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/), then review the current [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql/flexible-server/), [Azure HorizonDB pricing](https://azure.microsoft.com/pricing/details/horizondb/), and [Virtual Machines pricing](https://azure.microsoft.com/pricing/details/virtual-machines/).
 
 ## Related content
 
-- [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql/server/)
-- [Quickstart: Create an Azure Database for PostgreSQL flexible server](quickstart-create-server.md)
+- [What is Azure Database for PostgreSQL?](../overview.md)
+- [What is an Elastic Cluster?](../elastic-clusters/concepts-elastic-clusters.md)
+- [What is Azure HorizonDB (Preview)?](../../horizondb/overview.md)
